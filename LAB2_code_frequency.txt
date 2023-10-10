@@ -1,0 +1,68 @@
+import sys
+import math
+
+# Функция для шифрования текста с использованием шифра сдвига
+def encode_shift(text, shift):
+    # Создаем список для хранения зашифрованных символов
+    encoded_text = [""] * len(text)
+    for i, char in enumerate(text):
+        if char.isalpha():
+            # Определяем базовый символ (a для строчных, A для заглавных)
+            base_char = 'a' if char.islower() else 'A'
+            # Вычисляем новый символ с учетом сдвига
+            encoded_char = (ord(char) - ord(base_char) + shift) % 26
+            # Преобразуем его обратно в символ и сохраняем в список
+            encoded_text[i] = chr(encoded_char + ord(base_char))
+        else:
+            # Символы, не являющиеся буквами, остаются без изменений
+            encoded_text[i] = char
+    # Преобразуем список в строку и возвращаем зашифрованный текст
+    return "".join(encoded_text)
+
+# Функция для оценки вероятности, что текст на английском языке
+def english_text_probability(text):
+    # Вероятности появления букв в английском тексте
+    english_letter_probabilities = {
+        0: 8.08, 1: 1.67, 2: 3.18, 3: 3.99, 4: 12.56, 5: 2.17, 6: 1.8, 7: 5.27,
+        8: 7.24, 9: 0.14, 10: 0.63, 11: 4.04, 12: 2.6, 13: 7.38, 14: 7.47, 15: 1.91,
+        16: 0.09, 17: 6.42, 18: 6.59, 19: 9.15, 20: 2.79, 21: 1, 22: 1.89, 23: 0.21,
+        24: 1.65, 25: 0.07
+    }
+    # Создаем список для подсчета частоты каждой буквы
+    frequencies = [0] * 26
+    # Преобразуем текст в нижний регистр
+    text = text.lower()
+    for char in text:
+        char_code = ord(char) - ord('a')
+        if 0 <= char_code <= 25:
+            frequencies[char_code] += 1
+    # Вычисляем сходство частот с английским текстом
+    text_length = len(text)
+    score = 0
+    for i in range(26):
+        expected_probability = (frequencies[i] / text_length) * 100
+        score += (english_letter_probabilities[i] - expected_probability) ** 2
+    # Возвращаем квадратный корень из суммы квадратов разностей
+    return math.sqrt(score)
+
+def main():
+    # Получаем входное сообщение от пользователя
+    message = input()
+    # Инициализируем минимальный балл и текст с наилучшим сдвигом
+    min_score = sys.maxsize
+    best_text = ""
+    # Перебираем все возможные сдвиги
+    for i in range(26):
+        # Шифруем текст с текущим сдвигом
+        encoded_text = encode_shift(message, i)
+        # Оцениваем вероятность, что это английский текст
+        score = english_text_probability(encoded_text)
+        # Если балл ниже минимального, обновляем минимальный балл и текст
+        if score < min_score:
+            min_score = score
+            best_text = encoded_text
+    # Выводим наилучший расшифрованный текст
+    print(best_text)
+
+if __name__ == "__main__":
+    main()

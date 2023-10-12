@@ -1,0 +1,11 @@
+import hashlib, itertools
+
+def crack(hash_to_find):
+    calculated_hash = hashlib.md5('00078'.encode()).hexdigest()
+
+    for pin in itertools.product(range(10), repeat=5):
+        pin_str = ''.join(map(str, pin))
+        calculated_hash = hashlib.md5(pin_str.encode()).hexdigest()
+
+        if calculated_hash == hash_to_find:
+            return pin_str

@@ -1,0 +1,38 @@
+const G = 654;
+const H = 4547;
+const Q = 11087;
+
+function crack(G, H, Q) {
+    // Baby-Step Giant-Step algorithm
+    const m = Math.floor(Math.sqrt(Q)) + 1;
+    const babySteps = {};
+
+    // Precompute the baby steps
+    for (let j = 0; j < m; j++) {
+        babySteps[BigInt(Math.pow(G, j) % Q)] = j;
+    }
+
+    // Giant step: G^(-m)
+    const gm = BigInt(Math.pow(G, -m) % Q);
+
+    // Search for a match
+    for (let i = 0; i < m; i++) {
+        const target = BigInt((H * Math.pow(gm, i)) % Q);
+        if (babySteps[target] !== undefined) {
+            return i * m + babySteps[target];
+        }
+    }
+
+    // If no match is found
+    return null;
+}
+
+// Public key values
+
+// Perform the attack
+const X = crack(G, H, Q);
+if (X !== null) {
+    console.log(`Found X: ${X}`);
+} else {
+    console.log("No X found");
+}
